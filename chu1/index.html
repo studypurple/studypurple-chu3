@@ -5,10 +5,10 @@
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="スタパー中１単語">
+<meta name="apple-mobile-web-app-title" content="スタパー中１英単語">
 <style>body{margin:0}</style>
 </head><body>
-<title>スタパー中１単語</title>
+<title>スタパー中１英単語</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap">
 <style>
@@ -51,7 +51,7 @@ small{font-size:12px}
 
 /* header */
 .top{display:flex;align-items:center;justify-content:space-between;gap:8px}
-.brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:17px;letter-spacing:.02em}
+.brand{display:flex;align-items:center;gap:8px;font-weight:900;font-size:clamp(13px,4vw,17px);letter-spacing:0;white-space:nowrap;min-width:0}
 .brand img{width:34px;height:34px;object-fit:contain}
 .brand small{display:block;font-size:11px;font-weight:700;color:var(--accent);letter-spacing:.12em;line-height:1}
 .stats{display:flex;gap:6px}
@@ -551,7 +551,7 @@ const normType = s => s.replace(/[’‘`]/g,"'").toLowerCase().replace(/[.?!,]+
 let wsort = 'unit', tab = 'home', L = null, SHEET = null, wq = '', wf = 'all', wpos = 'all', wlimit = 300, CONF = null;
 const NAV = [['home','ホーム',SVG.home],['map','石垣マップ',SVG.map],['words','単語帳',SVG.book],['set','設定',SVG.gear]];
 const nav = () => `<nav class="nav" aria-label="メニュー"><div>${NAV.map(([k,l,i])=>`<button data-act="tab" data-v="${k}" ${tab===k?'aria-current="page"':''}>${i}${l}</button>`).join('')}</div></nav>`;
-const header = () => `<div class="top"><div class="brand"><img src="${PAPURU}" alt=""><span><small>NEW HORIZON ・ 中1</small>スタパー中１単語</span></div>
+const header = () => `<div class="top"><div class="brand"><img src="${PAPURU}" alt=""><span><small>NEW HORIZON ・ 中1</small>スタパー中１英単語</span></div>
   <div class="stats"><span class="stat" title="連続日数">${SVG.fire}<span class="num">${S.streak}</span>日</span><span class="stat" title="XP">${SVG.star}<span class="num">${S.xp}</span></span></div></div>`;
 function strip(){ const c = counts(), n = W.length;
   return `<div class="strip" role="img" aria-label="習得 ${c[3]}語、定着中 ${c[2]}語、学習中 ${c[1]}語、未学習 ${c[0]}語">

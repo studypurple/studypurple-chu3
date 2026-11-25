@@ -1,6 +1,6 @@
 {
- "name": "スタパー中１単語",
- "short_name": "スタパー中１単語",
+ "name": "スタパー中１英単語",
+ "short_name": "スタパー中１英単語",
  "start_url": "./",
  "scope": "./",
  "display": "standalone",
