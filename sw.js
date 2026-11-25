@@ -1,4 +1,4 @@
-const V = 'stapar-chu3-768da987';
+const V = 'stapar-chu3-698cb0ae';
 const SHELL = ['./', 'index.html', 'habatan.json', 'manifest.webmanifest', 'icons/icon-192.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== V && k !== 'stapar-aud-23b2cfda').map(k => caches.delete(k)))).then(() => self.clients.claim())); });
