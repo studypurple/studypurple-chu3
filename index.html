@@ -279,13 +279,49 @@ const weekId = () => { const n = TODAY(); return Math.floor((n + 3) / 7); };  /*
 
 /* ---- saved progress (this browser only) ---- */
 const KEY = 'stapar-chu3-habatan';
-const DEF = {xp:0, streak:0, last:-1, day:-1, dNew:0, dRev:0, exam:'2027-03-11', r:{}, pr:{}, diag:null, ta:0, boss:{}, hw:null, mute:false, voice:'', fc:{}, seen:{}};
+const DEF = {xp:0, streak:0, last:-1, day:-1, dNew:0, dRev:0, exam:'2027-03-11', r:{}, pr:{}, diag:null, ta:0, boss:{}, hw:null, mute:false, voice:'', fc:{}, seen:{}, tm:{}, rep:null, repAt:0};
 let S = JSON.parse(JSON.stringify(DEF));
 try { const raw = localStorage.getItem(KEY); if (raw) S = {...S, ...JSON.parse(raw)}; } catch(e){}
 if (S.exam === '2027-03-12') S.exam = '2027-03-11';
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch(e){} };
 function rollDay(){ const t = TODAY(); if (S.day !== t){ S.day = t; S.dNew = 0; S.dRev = 0; } }
 rollDay();
+
+/* ---- study time: counted in 10-second steps while the screen is visible and the student touched it in the last minute ---- */
+let lastAct = Date.now();
+['pointerdown','keydown'].forEach(ev => document.addEventListener(ev, () => { lastAct = Date.now(); }, {passive:true}));
+setInterval(() => {
+  if (document.visibilityState !== 'visible' || Date.now() - lastAct > 60000) return;
+  const t = TODAY(); S.tm[t] = (S.tm[t] || 0) + 10;
+  Object.keys(S.tm).forEach(k => { if (+k < t - 60) delete S.tm[k]; });
+  save();
+}, 10000);
+const minsOn = d => Math.round((S.tm[d] || 0) / 60);
+
+/* ---- report to the teacher's Google Sheet (only after the student registers in 設定) ---- */
+const REPORT_URL = '__REPORT_URL__';
+const REPORT_ON = /^https:\/\/script\.google\.com\//.test(REPORT_URL);
+function devId(){ if (!S.dev){ S.dev = Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4); save(); } return S.dev; }
+function isoDay(n){ return new Date(n * 864e5).toISOString().slice(0,10); }
+function reportBody(){
+  const t = TODAY(), c = counts(), hwW = S.hw ? hwWords() : [], hwDone = hwW.filter(w => box(w.no) >= 2).length;
+  const weak = W.filter(w => rec(w.no) && rec(w.no)[2] > 0 && box(w.no) <= 2).sort((a,b) => rec(b.no)[2] - rec(a.no)[2] || rec(b.no)[3] - rec(a.no)[3]).slice(0, 10);
+  const days = {}; for (let d = t - 6; d <= t; d++) days[isoDay(d)] = minsOn(d);
+  return {v:1, code:S.rep.code, num:S.rep.num, nick:S.rep.nick, id:devId(), date:isoDay(t),
+    today:minsOn(t), week:Object.values(days).reduce((a,b)=>a+b,0), days,
+    mastered:c[3], settled:c[2], learning:c[1], learned:c[2]+c[3], streak:S.streak, xp:S.xp,
+    lastStudy: S.last >= 0 ? isoDay(S.last) : '',
+    hw: S.hw ? hwDesc(S.hw) : '', hwDone, hwTotal:hwW.length, hwRate: hwW.length ? Math.round(100*hwDone/hwW.length) : null,
+    weak: weak.map(w => `${w.en}（${w.ja.replace(/[①-⑳]|（[動名形副前接代助間冠]）/g,'').split(/[、，,；;/／]/)[0].trim()}）×${rec(w.no)[2]}`)};
+}
+function sendReport(force){
+  if (!REPORT_ON || !S.rep || !W.length) return;
+  if (!force && Date.now() - (S.repAt||0) < 180000) return;
+  S.repAt = Date.now(); save();
+  const body = JSON.stringify(reportBody());
+  try { fetch(REPORT_URL, {method:'POST', mode:'no-cors', keepalive:true, headers:{'Content-Type':'text/plain;charset=utf-8'}, body}).catch(()=>{}); } catch(e){}
+}
+document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'hidden') sendReport(false); });
 
 /* ---- spaced review: box 0 (new) .. 5; days until the word comes back ---- */
 const INT = [0, 1, 3, 7, 14, 30];
@@ -523,6 +559,7 @@ function home(){
     <button class="go" data-act="study" data-v="normal"><small>STEP 2</small>テストする<span class="cnt">10問</span></button></div>
     <button class="ghost" data-act="study" data-v="quick">時間がない日は：5分だけテスト</button>
     ${S.diag ? '' : `<button class="banner" data-act="diag"><img src="${PAPURU}" alt=""><span><b>診断テスト（約3分・30問）</b><span>知っている単語を見つけて、覚えなくていい単語を飛ばします</span></span></button>`}
+    ${REPORT_ON && !S.rep ? `<button class="banner" data-act="gorep"><img src="${PAPURU}" alt=""><span><b>先生に記録を送る登録をしよう</b><span>出席番号・ニックネーム・クラスコードを入れるだけ（1分）</span></span></button>` : ''}
     ${hw ? `<section class="card" aria-label="宿題"><div class="qrow" style="grid-template-columns:auto 1fr auto"><b>宿題</b><div class="bar"><b style="width:${Math.round(100*hwDone/Math.max(1,hwW.length))}%"></b></div><span class="num">${hwDone} / ${hwW.length}</span></div>
       <p class="hint">${esc(hwDesc(hw))}${hw.due?`（${fmtDate(hw.due)}まで）`:''}。新しい単語はこの中から先に出ます。</p></section>` : ''}
     <button class="card" data-act="tab" data-v="map" style="text-align:left;display:grid;gap:8px"><div style="display:flex;justify-content:space-between"><b>2,500個の石垣</b><span class="muted num">${Math.round(100*counts()[3]/W.length)}% 完成</span></div>${strip()}${legend()}</button>
@@ -622,6 +659,14 @@ function setTab(){
     <p class="hint">聞こえないときは、音量と、iPhoneの消音モード（横のスイッチ）を確認してください。LINEなどのアプリの中で開いている場合は、SafariやChromeで開き直すと鳴ることがあります。</p>
     <div class="field"><label id="oklab">正解の音（タップで試し聞き）</label><div class="chips" role="radiogroup" aria-labelledby="oklab">${Object.entries(OKSND).map(([k,l])=>`<button class="chip" role="radio" data-act="oksnd" data-v="${k}" aria-pressed="${(S.okSnd||'pinpon')===k}" aria-checked="${(S.okSnd||'pinpon')===k}">${l}</button>`).join('')}</div></div>
     <div class="row2"><button class="go2" data-act="mute">効果音：${S.mute?'OFF':'ON'}</button><button class="go2" data-act="sndtest">連続正解を試す</button></div>
+    ${REPORT_ON ? `<section class="teacher" aria-label="先生に記録を送る" id="repsec"><h2>先生に記録を送る</h2>
+      <p class="hint">登録すると、学習時間・覚えた語数・宿題の進み具合・まちがえやすい単語が塾の先生に届きます。名前は送りません。送るのは出席番号とニックネームだけです。</p>
+      <div class="row2"><div class="field"><label for="repnum">出席番号</label><input id="repnum" inputmode="numeric" maxlength="6" value="${esc(S.rep?S.rep.num:'')}"></div>
+        <div class="field"><label for="repnick">ニックネーム</label><input id="repnick" maxlength="12" value="${esc(S.rep?S.rep.nick:'')}"></div></div>
+      <div class="field"><label for="repcode">クラスコード（先生に聞いてください）</label><input id="repcode" maxlength="20" autocapitalize="characters" value="${esc(S.rep?S.rep.code:(S.joinCode||''))}"></div>
+      <div class="row2"><button class="go2" data-act="repset">${S.rep?'登録内容を更新':'登録して送る'}</button>${S.rep?`<button class="go2" data-act="repoff" style="border-color:var(--line);color:var(--muted)">送るのをやめる</button>`:''}</div>
+      <p class="hint" id="repmsg">${S.rep ? `送信中：${esc(S.rep.num)}番 ${esc(S.rep.nick)}${S.repAt?`（最後に送った時刻 ${new Date(S.repAt).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'})}）`:''}` : 'まだ登録していません'}</p>
+    </section>` : ''}
     <section class="teacher" aria-label="先生用"><h2>先生用：宿題</h2>
       <p class="hint">番号の範囲・品詞・出す順番を決めると、新しい単語はその中から先に出題されます。範囲を空らんにすると、全2,500語が対象です。${SITE ? '宿題を設定すると、生徒に送るリンクが作れます。' : ''}</p>
       <div class="range"><input id="hwfrom" type="number" min="1" max="2500" inputmode="numeric" placeholder="1" value="${hw.from||''}" aria-label="範囲のはじめ"><span>〜</span><input id="hwto" type="number" min="1" max="2500" inputmode="numeric" placeholder="100" value="${hw.to||''}" aria-label="範囲のおわり"></div>
@@ -630,6 +675,7 @@ function setTab(){
       <div class="field"><label for="hwdue">期限（なくてもOK）</label><input id="hwdue" type="date" value="${esc(hw.due||'')}"></div>
       <div class="row2"><button class="go2" data-act="hwset">宿題を設定</button><button class="go2" data-act="hwclear" style="border-color:var(--line);color:var(--muted)">解除</button></div>
       ${SITE && S.hw ? `<button class="go" data-act="hwlink">生徒に送る宿題リンクをコピー</button><p class="hint" id="hwlinkmsg">このリンクを生徒に送ると、開くだけで同じ宿題（同じ順番）が入ります。</p>` : ''}
+      ${SITE && REPORT_ON ? `<div class="field"><label for="jcode">クラス参加リンク（クラスコードを入れて作ります）</label><input id="jcode" maxlength="20" autocapitalize="characters"></div><button class="go2" data-act="joinlink">参加リンクをコピー</button><p class="hint" id="joinmsg">生徒がこのリンクを開くと、クラスコードが入った状態で登録画面が開きます。</p>` : ''}
       <p class="hint" id="hwmsg">${S.hw?`いまの宿題：${esc(hwDesc(S.hw))}（${hwWords().length}語）`:'宿題は設定されていません'}</p>
     </section>
     ${CONF==='reset' ? `<div class="confirm"><b>学習の記録をすべて消しますか？</b><p class="hint">この端末に保存された進み具合が消え、元に戻せません。</p><div class="row2"><button class="go ng" data-act="resetyes">消す</button><button class="go2" data-act="resetno">やめる</button></div></div>`
@@ -850,6 +896,7 @@ function finish(){
       ${r1 >= .75 ? `<button class="go2" data-act="markel">小学校で習った602語も「定着中」にする</button>` : ''}`; }
   if (L.miss.length===0 && L.total >= 8 && k!=='ta' && k!=='diag'){ L.xp += 20; extra += '<p class="grow">ノーミスボーナス +20XP</p>'; }
   S.xp += L.xp;
+  setTimeout(() => sendReport(true), 300);
   if (S.last !== t){ S.streak = (S.last >= 0 && t - S.last === 1) ? S.streak+1 : 1; S.last = t; }
   save();
   const rankUp = rankOf(S.xp) > L.rankBefore;
@@ -900,6 +947,16 @@ $app.addEventListener('click', e => {
   else if (a==='hwlink'){ const url = hwLink(S.hw); const m = document.getElementById('hwlinkmsg');
     const done = () => { if (m) m.textContent = 'コピーしました。LINEやClassroomに貼って送ってください：' + url; };
     (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(done).catch(() => { if (m) m.textContent = 'このリンクを送ってください：' + url; }); }
+  else if (a==='repset'){ const num = document.getElementById('repnum').value.trim(), nick = document.getElementById('repnick').value.trim(), code = document.getElementById('repcode').value.trim().toUpperCase();
+    const m = document.getElementById('repmsg');
+    if (!num || !nick || !code){ m.textContent = '出席番号・ニックネーム・クラスコードをすべて入れてください。'; return; }
+    S.rep = {num, nick, code}; save(); sendReport(true); render(false); const m2 = document.getElementById('repmsg'); if (m2) m2.textContent = `登録しました。${num}番 ${nick} として先生に記録が届きます。`; }
+  else if (a==='gorep'){ tab = 'set'; render(); const el = document.getElementById('repsec'); if (el) el.scrollIntoView({block:'start'}); }
+  else if (a==='repoff'){ S.rep = null; save(); render(false); }
+  else if (a==='joinlink'){ const code = document.getElementById('jcode').value.trim().toUpperCase(); const m = document.getElementById('joinmsg');
+    if (!code){ m.textContent = 'クラスコードを入れてください。'; return; }
+    const url = location.origin + location.pathname + '#class=' + encodeURIComponent(code);
+    (navigator.clipboard ? navigator.clipboard.writeText(url) : Promise.reject()).then(() => { m.textContent = 'コピーしました：' + url; }).catch(() => { m.textContent = 'このリンクを送ってください：' + url; }); }
   else if (a==='hwclear'){ S.hw = null; save(); render(false); }
   else if (a==='reset'){ CONF = 'reset'; render(false); }
   else if (a==='resetno'){ CONF = null; render(false); }
@@ -931,6 +988,8 @@ function render(top=true){
 const SITE = !/claude|anthropic/i.test(location.hostname);
 function hwLink(h){ return location.origin + location.pathname + '#hw=' + [h.from, h.to, encodeURIComponent(h.pos||'all'), h.order||'no', h.due||'', h.seed||1].join('.'); }
 function hwFromHash(){
+  const jc = location.hash.match(/class=([^&]+)/);
+  if (jc){ S.joinCode = decodeURIComponent(jc[1]).toUpperCase(); save(); if (!S.rep){ tab = 'set'; window._goRep = true; } try { history.replaceState(null, '', location.pathname + location.search); } catch(e){} }
   const m = location.hash.match(/hw=([^&]+)/); if (!m) return;
   const [f, to, pos, order, due, seed] = m[1].split('.'); const h = {from:+f||1, to:+to||2500, pos:decodeURIComponent(pos||'all'), order:order==='rand'?'rand':'no', due:due||'', seed:+seed||1};
   if (h.from>=1 && h.to>=h.from && h.to<=2500 && HWPOS.some(x=>x[0]===h.pos)){ S.hw = h; HWC = null; save(); toast = '先生から宿題が届きました：' + hwDesc(h); tab = 'home'; }
@@ -950,7 +1009,9 @@ fetch('habatan.json').then(r => r.json()).then(d => {
   const rnd = seeded(2500); ORDER = W.map(w => [rnd(), w]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]);
   hwFromHash();
   render();
-  addEventListener('hashchange', () => { if (/hw=/.test(location.hash)){ hwFromHash(); L = null; render(); } });
+  if (window._goRep){ const el = document.getElementById('repsec'); if (el) el.scrollIntoView({block:'start'}); }
+  sendReport(false);
+  addEventListener('hashchange', () => { if (/hw=|class=/.test(location.hash)){ hwFromHash(); L = null; render(); } });
 }).catch(() => { $app.innerHTML = '<div class="loading">単語データを読みこめませんでした。ページを再読みこみしてください。</div>'; });
 </script>
 
