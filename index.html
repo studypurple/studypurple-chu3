@@ -664,7 +664,7 @@ function setTab(){
       <div class="row2"><div class="field"><label for="repnum">出席番号</label><input id="repnum" inputmode="numeric" maxlength="6" placeholder="例：301" aria-describedby="repnumhint" value="${esc(S.rep?S.rep.num:'')}"></div>
         <div class="field"><label for="repnick">ニックネーム</label><input id="repnick" maxlength="12" value="${esc(S.rep?S.rep.nick:'')}"></div></div>
       <p class="hint" id="repnumhint">出席番号は「学年＋番号」で入れます。1年1番→<b>101</b>、2年1番→<b>201</b>、3年1番→<b>301</b>、3年12番→<b>312</b></p>
-      <div class="field"><label for="repcode">クラスコード（先生に聞いてください）</label><input id="repcode" maxlength="20" autocapitalize="characters" value="${esc(S.rep?S.rep.code:(S.joinCode||''))}"></div>
+      <div class="field"><label for="repcode">クラスコード（中1→C1、中2→C2、中3→C3）</label><input id="repcode" maxlength="20" autocapitalize="characters" placeholder="例：C3" value="${esc(S.rep?S.rep.code:(S.joinCode||''))}"></div>
       <div class="row2"><button class="go2" data-act="repset">${S.rep?'登録内容を更新':'登録して送る'}</button>${S.rep?`<button class="go2" data-act="repoff" style="border-color:var(--line);color:var(--muted)">送るのをやめる</button>`:''}</div>
       <p class="hint" id="repmsg">${S.rep ? `送信中：${esc(S.rep.num)}番 ${esc(S.rep.nick)}${S.repAt?`（最後に送った時刻 ${new Date(S.repAt).toLocaleTimeString('ja-JP',{hour:'2-digit',minute:'2-digit'})}）`:''}` : 'まだ登録していません'}</p>
     </section>` : ''}
