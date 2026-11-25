@@ -1,6 +1,6 @@
 {
- "name": "スタパー単語 受験編",
- "short_name": "スタパー受験",
+ "name": "スタパー受験単語",
+ "short_name": "スタパー受験単語",
  "start_url": "./",
  "scope": "./",
  "display": "standalone",

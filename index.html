@@ -5,10 +5,10 @@
 <link rel="apple-touch-icon" href="icons/icon-180.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="スタパー受験">
+<meta name="apple-mobile-web-app-title" content="スタパー受験単語">
 <style>body{margin:0}</style>
 </head><body>
-<title>スタパー単語 受験編</title>
+<title>スタパー受験単語</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600;700&family=Zen+Kaku+Gothic+New:wght@500;700;900&display=swap">
 <style>
@@ -531,7 +531,7 @@ const normType = s => s.replace(/[’‘`]/g,"'").toLowerCase().replace(/[.?!,]+
 let tab = 'home', L = null, SHEET = null, wq = '', wf = 'all', wpos = 'all', wlimit = 300, CONF = null;
 const NAV = [['home','ホーム',SVG.home],['map','石垣マップ',SVG.map],['words','単語帳',SVG.book],['set','設定',SVG.gear]];
 const nav = () => `<nav class="nav" aria-label="メニュー"><div>${NAV.map(([k,l,i])=>`<button data-act="tab" data-v="${k}" ${tab===k?'aria-current="page"':''}>${i}${l}</button>`).join('')}</div></nav>`;
-const header = () => `<div class="top"><div class="brand"><img src="${PAPURU}" alt=""><span><small>受験編 ・ 中3</small>スタパー単語</span></div>
+const header = () => `<div class="top"><div class="brand"><img src="${PAPURU}" alt=""><span><small>はば単2,500 ・ 中3</small>スタパー受験単語</span></div>
   <div class="stats"><span class="stat" title="連続日数">${SVG.fire}<span class="num">${S.streak}</span>日</span><span class="stat" title="XP">${SVG.star}<span class="num">${S.xp}</span></span></div></div>`;
 function strip(){ const c = counts(), n = W.length;
   return `<div class="strip" role="img" aria-label="習得 ${c[3]}語、定着中 ${c[2]}語、学習中 ${c[1]}語、未学習 ${c[0]}語">
