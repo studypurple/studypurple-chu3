@@ -299,7 +299,7 @@ setInterval(() => {
 const minsOn = d => Math.round((S.tm[d] || 0) / 60);
 
 /* ---- report to the teacher's Google Sheet (only after the student registers in 設定) ---- */
-const REPORT_URL = '__REPORT_URL__';
+const REPORT_URL = 'https://script.google.com/macros/s/AKfycbxIzHq0zWX4rKgIA4t2MuwB0Q0tK0wF5xojmJX8552amDAGDDc1Y0KNYbfQ0qIHSo9C/exec';
 const REPORT_ON = /^https:\/\/script\.google\.com\//.test(REPORT_URL);
 function devId(){ if (!S.dev){ S.dev = Math.random().toString(36).slice(2,10) + Date.now().toString(36).slice(-4); save(); } return S.dev; }
 function isoDay(n){ return new Date(n * 864e5).toISOString().slice(0,10); }
