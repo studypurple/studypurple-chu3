@@ -4,3 +4,6 @@
 
 - 学習の記録は各端末のブラウザに保存されます（サーバーには送られません）。
 - 宿題は「設定」の先生用の欄で作ったリンクを生徒に送ると配れます。
+
+## スタパー中１単語（中1・NEW HORIZON 1）
+`chu1/` フォルダ → https://studypurple.github.io/studypurple-chu3/chu1/

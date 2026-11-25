@@ -1,0 +1,9 @@
+const V = 'stapar-chu1-e1c2da74', AV = 'stapar-chu1-aud-53899689';
+const SHELL = ['./', 'index.html', 'nh1.json', 'manifest.webmanifest', 'icons/icon-192.png'];
+self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
+self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('stapar-chu1-') && k !== V && k !== AV).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
+self.addEventListener('fetch', e => {
+  const u = new URL(e.request.url); if (e.request.method !== 'GET' || u.origin !== location.origin) return;
+  if (u.pathname.includes('/aud/')) { e.respondWith(caches.open(AV).then(c => c.match(e.request).then(r => r || fetch(e.request).then(n => { if (n.ok) c.put(e.request, n.clone()); return n; })))); return; }
+  e.respondWith(fetch(e.request).then(n => { if (n.ok) { const cp = n.clone(); caches.open(V).then(c => c.put(e.request, cp)); } return n; }).catch(() => caches.match(e.request, {ignoreSearch: true}).then(r => r || caches.match('index.html'))));
+});
