@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>スタパー中１英単語 使い方ガイド</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Sora:wght@600;700&display=swap">
+<style>
+/* Layout: phone-first reading column. Daily routine, test-week plan, how review works, features, tips, trouble-shooting. Bright 中1 violet + orange. */
+:root{--bg:#f7f5ff;--paper:#ffffff;--ink:#1d1838;--muted:#5f587d;--line:#e4defa;--accent:#7c3aed;--accent-soft:#efe8ff;--cta:#ff8a1a;--cta-soft:#fff1e3;
+--s0:#dedaea;--s1:#d3c4ff;--s2:#a685f7;--s3:#7c3aed;
+--f-jp:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;--f-en:"Sora",system-ui,sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#13101d;--paper:#1d1930;--ink:#efecfa;--muted:#a8a1c4;--line:#322c4c;--accent:#b49bff;--accent-soft:#2d2456;--cta:#ff9d40;--cta-soft:#3a2414;--s0:#2e2a44;--s1:#43367f;--s2:#7357d6;--s3:#b49bff;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#13101d;--paper:#1d1930;--ink:#efecfa;--muted:#a8a1c4;--line:#322c4c;--accent:#b49bff;--accent-soft:#2d2456;--cta:#ff9d40;--cta-soft:#3a2414;--s0:#2e2a44;--s1:#43367f;--s2:#7357d6;--s3:#b49bff;color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-jp);line-height:1.75;font-size:16px}
+main{max-width:680px;margin:0 auto;padding-block:24px 56px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:28px}
+h1{font-size:clamp(26px,6.5vw,34px);font-weight:900;line-height:1.3;margin:0;text-wrap:balance}
+h1 small{display:block;font-size:13px;letter-spacing:.14em;color:var(--accent);font-weight:700}
+h2{font-size:21px;font-weight:900;margin:0 0 10px;text-wrap:balance}
+h3{font-size:17px;margin:0}
+p{margin:0}
+section{display:grid;gap:12px}
+.lead{color:var(--muted)}
+.day{background:var(--accent);color:#fff;border-radius:20px;padding:18px;display:grid;gap:12px}
+.day h2{color:#fff;margin:0}
+.day ol{margin:0;padding:0;list-style:none;display:grid;gap:10px;counter-reset:d}
+.day li{counter-increment:d;background:rgba(255,255,255,.14);border-radius:12px;padding:10px 12px 10px 52px;position:relative}
+.day li::before{content:counter(d);position:absolute;left:12px;top:10px;width:28px;height:28px;border-radius:50%;background:#fff;color:#7c3aed;font-family:var(--f-en);font-weight:700;display:grid;place-items:center}
+.day li b{display:block}
+.day .t{font-size:13px;opacity:.9}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px 16px;display:grid;gap:6px;min-width:0}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.grid{grid-template-columns:1fr}}
+.steps{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-weight:700}
+.steps span{background:var(--accent-soft);color:var(--accent);border-radius:8px;padding:2px 10px;font-size:14px}
+.steps i{font-style:normal;color:var(--muted)}
+.lv{display:grid;gap:8px}
+.lv div{display:grid;grid-template-columns:16px 5.5em 1fr;gap:10px;align-items:center}
+.lv i{width:16px;height:12px;border-radius:3px}
+.tl{display:grid;gap:8px}
+.tl div{display:grid;grid-template-columns:7.5em 1fr;gap:10px;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+.tl b{color:var(--accent)}
+.tip{background:var(--cta-soft);border-radius:16px;padding:14px 16px;display:grid;gap:8px}
+.tip ul{margin:0;padding-left:1.2em;display:grid;gap:6px}
+.muted{color:var(--muted);font-size:14px}
+.q{display:grid;gap:4px}
+.q b{font-size:15px}
+.rank{display:flex;flex-wrap:wrap;gap:6px;align-items:center;font-size:14px}
+.rank span{border:1px solid var(--line);background:var(--paper);border-radius:999px;padding:2px 10px}
+.rank i{font-style:normal;color:var(--muted)}
+</style></head><body>
+<main>
+<h1><small>スタパー中１英単語</small>使い方ガイド</h1>
+<p class="lead">教科書「NEW HORIZON English Course 1」の単語を、定期テストまでに覚えきるためのアプリです。毎日10分ほどでOK。何を、どれだけやるかはアプリが決めてくれます。</p>
+
+<section class="day" aria-label="毎日やること">
+<h2>毎日やることは、これだけ</h2>
+<ol>
+<li><b>ホームで「出題するUnit」を選ぶ</b><span class="t">授業で習ったUnitやテスト範囲を選ぶと、STEP 1とSTEP 2はそのUnitの単語だけになります。選ばないと全部のUnitから出ます。</span></li>
+<li><b>STEP 1「単語を覚える」（10語）</b><span class="t">単語・意味を見て、音声を聞きます。まねして声に出すと覚えやすくなります。</span></li>
+<li><b>STEP 2「テストする」（10問）</b><span class="t">覚えた単語と、今日が復習の日の単語が出ます。</span></li>
+<li><b>ノルマのバーがいっぱいになるまで、1〜3をくり返す</b><span class="t">終わったら、ゲームで遊んでも大丈夫です。</span></li>
+</ol>
+</section>
+
+<section aria-labelledby="test">
+<h2 id="test">定期テストに向けて</h2>
+<p>ホームの<b>「出題するUnit」</b>でテスト範囲のUnitを選び、「設定」で<b>次の定期テストの日</b>を入れると、ホームにテストまでの日数が出て、選んだUnitの単語だけが出題されます。毎日の量も、テストの2日前に終わるように自動で決まります。</p>
+<div class="tl" aria-label="おすすめの進め方">
+<div><b>テスト3週間前</b><span>テストの日と範囲を入れる。毎日のノルマをこなす。</span></div>
+<div><b>テスト1週間前</b><span>範囲の単語を全部1回は覚える。まちがえた単語は次の日にまた出ます。</span></div>
+<div><b>テスト前日</b><span>「単語帳」でテスト範囲のUnitを開き、意味とつづりを最終チェック。</span></div>
+</div>
+</section>
+
+<section aria-labelledby="why">
+<h2 id="why">しくみ：わすれるころに、また出てくる</h2>
+<p>人は覚えたことを、時間がたつと少しずつわすれます。このアプリは、わすれかけたちょうどいいころに同じ単語をもう一度出します。正解するたびに、次に出るまでの日数がのびます。</p>
+<div class="steps" aria-label="復習の間かく"><span>1日後</span><i>→</i><span>3日後</span><i>→</i><span>7日後</span><i>→</i><span>14日後</span><i>→</i><span>30日後</span></div>
+<p>まちがえた単語は<b>次の日にまた出てきます</b>。まちがえるのは失敗ではなく、覚えるチャンスがふえただけです。</p>
+<div class="card lv" aria-label="単語の4つの段階">
+<div><i style="background:var(--s0)"></i><b>未学習</b><span class="muted">まだ出ていない単語</span></div>
+<div><i style="background:var(--s1)"></i><b>学習中</b><span class="muted">覚えはじめた単語</span></div>
+<div><i style="background:var(--s2)"></i><b>定着中</b><span class="muted">だいぶ覚えた単語。数日〜1週間あけて確認</span></div>
+<div><i style="background:var(--s3)"></i><b>習得</b><span class="muted">しっかり覚えた単語。ときどき確認</span></div>
+</div>
+<p>問題の形も段階に合わせて変わります。最初は意味を選ぶ問題、覚えてくると英語を選ぶ問題、最後はつづりを書く問題です。定期テストで出るつづりまで、しっかり身につきます。</p>
+</section>
+
+<section aria-labelledby="first">
+<h2 id="first">はじめての日にやること</h2>
+<div class="grid">
+<div class="card"><h3>診断テスト（約3分・30問）</h3><p>もう知っている単語を見つけて、覚えなくていい単語を飛ばします。最初に1回やると、毎日のノルマが軽くなります。</p></div>
+<div class="card"><h3>先生に記録を送る登録</h3><p>出席番号（1年1番なら101）、ニックネーム、クラスコード「C1」を入れます。最初の1回だけです。</p></div>
+</div>
+</section>
+
+<section aria-labelledby="more">
+<h2 id="more">ほかの機能</h2>
+<div class="grid">
+<div class="card"><h3>5分だけテスト</h3><p>時間がない日はこれだけでもOK。0日より5分のほうが、ずっと記憶に残ります。</p></div>
+<div class="card"><h3>宿題</h3><p>先生から宿題リンクが届いたら、開くだけで入ります。新しい単語は宿題のUnitから先に出ます。</p></div>
+<div class="card"><h3>1分タイムアタック</h3><p>1分で何問正解できるかに挑戦。自己ベストの更新をねらいましょう。</p></div>
+<div class="card"><h3>今週のボス戦</h3><p>その週に学習した単語の総復習です。ハートがなくなる前に全部正解するとボスをたおせます。</p></div>
+<div class="card"><h3>熟語・活用ドリル</h3><p>教科書の熟語・表現と、go → went のような過去形を練習できます。</p></div>
+<div class="card"><h3>単語帳</h3><p>Unit順とABC順を切りかえられます。品詞でしぼりこみ、検索、🔊で発音も聞けます。</p></div>
+<div class="card"><h3>お城の石垣</h3><p>1語が1つの石。覚えるほど色が濃くなります。Unitごとに、どこが手つかずかひと目でわかります。</p></div>
+<div class="card"><h3>ランクと連続日数</h3><p>正解するとXPがたまり、ランクが上がります。</p>
+<div class="rank"><span>見習い大工</span><i>→</i><span>石工</span><i>→</i><span>大工の棟梁</span><i>→</i><span>築城名人</span><i>→</i><span>お城の主</span></div></div>
+</div>
+</section>
+
+<section class="tip" aria-labelledby="tips">
+<h2 id="tips">効果がぐんと上がる使い方</h2>
+<ul>
+<li><b>毎日少しずつ。</b>週末にまとめて1時間より、毎日10分のほうが覚えます。</li>
+<li><b>「覚える」と「テスト」は同じ日に。</b>見ただけでは覚えたつもりになりがちです。</li>
+<li><b>音声をまねして声に出す。</b>発音とつづりが結びついて、書けるようになります。</li>
+<li><b>授業で習ったUnitを宿題や範囲に入れる。</b>教科書で見た単語なので、ぐっと覚えやすくなります。</li>
+<li><b>寝る前に覚えて、朝5分テスト。</b>スキマ時間がいちばん効きます。</li>
+<li><b>ノルマが多い日は復習を優先。</b>新しい単語は明日に回してもだいじょうぶです。</li>
+</ul>
+</section>
+
+<section aria-labelledby="trouble">
+<h2 id="trouble">こまったとき</h2>
+<div class="card q"><b>音が出ない</b><p>音量とマナーモードを確認してください。LINEの中で開いているときは、SafariやChromeで開き直します。「設定」の「読み上げを試す」で確かめられます。</p></div>
+<div class="card q"><b>記録が消えた</b><p>記録はそのスマホのブラウザに保存されています。いつも同じ方法（ホーム画面のアイコン）で開きましょう。</p></div>
+<div class="card q"><b>宿題が入らない</b><p>先生から届いたリンクを、もう一度開いてください。</p></div>
+<div class="card q"><b>先生に記録が届いているか不安</b><p>「設定」の「先生に記録を送る」に、最後に送った時刻が出ます。テストやゲームを1回終えるたびに送られます。</p></div>
+</section>
+<p style="text-align:center"><a href="./" style="color:var(--accent);font-weight:700">アプリを開く</a>　・　<a href="start.html" style="color:var(--accent);font-weight:700">はじめかた</a></p>
+</main>
+</body></html>

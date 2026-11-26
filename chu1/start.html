@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="ja"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>スタパー中１英単語のはじめかた</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@500;700;900&family=Sora:wght@600;700&display=swap">
+<style>
+/* Layout: one handout column — QR first, then four steps, then class code and small print. Bright 中1 violet + orange. */
+:root{--bg:#f7f5ff;--paper:#ffffff;--ink:#1d1838;--muted:#5f587d;--line:#e4defa;--accent:#7c3aed;--accent-soft:#efe8ff;--cta:#ff8a1a;
+--f-jp:"Zen Kaku Gothic New","Hiragino Sans","Yu Gothic",sans-serif;--f-en:"Sora",system-ui,sans-serif}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#13101d;--paper:#1d1930;--ink:#efecfa;--muted:#a8a1c4;--line:#322c4c;--accent:#b49bff;--accent-soft:#2d2456;--cta:#ff9d40;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#13101d;--paper:#1d1930;--ink:#efecfa;--muted:#a8a1c4;--line:#322c4c;--accent:#b49bff;--accent-soft:#2d2456;--cta:#ff9d40;color-scheme:dark}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-jp);line-height:1.7;font-size:16px}
+main{max-width:640px;margin:0 auto;padding-block:24px 48px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));display:grid;gap:20px}
+h1{font-size:clamp(24px,6vw,32px);font-weight:900;line-height:1.3;text-wrap:balance;margin:0}
+h1 small{display:block;font-size:13px;letter-spacing:.14em;color:var(--accent);font-weight:700}
+.qr{background:var(--paper);border:1px solid var(--line);border-radius:20px;padding:20px;display:grid;grid-template-columns:auto 1fr;gap:20px;align-items:center}
+.qr img{width:180px;height:180px;background:#fff;border-radius:8px;image-rendering:pixelated}
+.qr p{margin:0}.url{font-family:var(--f-en);font-size:14px;overflow-wrap:anywhere;color:var(--accent);font-weight:600}
+@media (max-width:480px){.qr{grid-template-columns:1fr;justify-items:center;text-align:center}}
+ol{list-style:none;margin:0;padding:0;display:grid;gap:12px;counter-reset:s}
+ol>li{counter-increment:s;background:var(--paper);border:1px solid var(--line);border-radius:16px;padding:14px 16px 14px 60px;position:relative;min-width:0}
+ol>li::before{content:counter(s);position:absolute;left:16px;top:14px;width:30px;height:30px;border-radius:50%;background:var(--accent);color:#fff;font-family:var(--f-en);font-weight:700;display:grid;place-items:center}
+li>b{display:block;font-size:17px}
+.os{display:grid;gap:8px;margin-top:8px}
+.os div{background:var(--accent-soft);border-radius:10px;padding:8px 12px;font-size:14px}
+.os em{font-style:normal;font-weight:700;color:var(--accent)}
+.code{background:var(--paper);border:2px solid var(--cta);border-radius:20px;padding:16px 20px;display:grid;gap:4px}
+.code p{margin:0}.code .big{font-family:var(--f-en);font-size:26px;font-weight:700;color:var(--cta);letter-spacing:.06em}
+.note{font-size:14px;color:var(--muted);display:grid;gap:6px;margin:0;padding-left:1.2em}
+.note b{color:var(--ink)}
+</style></head><body>
+<main>
+<h1><small>中1 英単語アプリ（NEW HORIZON 1）</small>スタパー中１英単語のはじめかた</h1>
+<section class="qr" aria-label="アプリのQRコード"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAXIAAAFyAQAAAADAX2ykAAAC4ElEQVR4nO2cQW7jMAxFH0cGurSBHCBHsW/QIxU90tzAPkoPUMBaBpDxZyEpcTYtinE88YBauIX9Fh8gSJEiFRM/WdOvH+HgvPPOP5SPVtYAMHVgQ2ywgcUAqN+bffQ4vzEfJEmC2GBv82LAYhrji2wA6CVJ8156nN+ObwAwCAlYTFP3iYhg+X08JYgd9L/30OP8I/kgGwhiOleHnc7pH+pxflO+veTQDCxmQ5u+4R+tx/m/5nN8XhdJscH6jxcZ8SSITYJWQNxDj/Pb80tOjyG+iH4OK2vbADCZmVm3lx7nt+Ob4pwAxMUECWgTmrqQM621dz+bfue/5WOO0dgAQDRj6haDNmF2vpgNLO6/R+bNrEEjQWZdkEZKkNZIkMbYQD/vp8f5rXjK0UbOlYOkudq3nGqUd9BKGp9Nv/PfrHx2NQLlhKpVMe3NyCPlg9v3aPzVf6sT9zPXRxDce7Lb97h8DcM1Ur+fExrbBFPn+dVBeSRVM+bVpnVDoVcxt8fnQ/LVawnS2K73WvqcadWNuff4fEC++O81iZbmu3f9DNXIbt/j8cWgYy6NrukWUHbiHK7rnuz2PRh/b9BSGrEK1/mRPD4fk6/+W7feWzmc66N1puX51fH45vZvHuKYXj8b+vmUSkMwdrm/oKmbd9Dj/LZ8yZ9XE1ZtyapYVUV1RMv992g8qwPnvKpB84ZbVsLr3wPz9jYvVjfhxWrCDHBtDXr/6Ij86vCCXmldLl1rJlaNpWfT7/zX6zq/kRDxJKNNjdHO+XMZnI0nDMIOepzflq9dQaD6b8mq1k1C7/8elW8oo+15oB3LY+yxSbepKxHLTZXn0+/81+v+/kIQcDFNr3N+Z/3cZdNqHz3OP5JfDAiyt4+mdBXKI8jvl/0HfJAN0e4uMWSf9vh8UP7+/sKSt2ObupDo89uL5b/9uIce57fnb/cXmnyhTNLFbjeBc2P4vdtLj/Pb8ea/z+C884fl/wBUSxWlpFlMBgAAAABJRU5ErkJggg==" alt="アプリを開くQRコード"><div><p>スマホのカメラでQRコードを読みこむか、このアドレスを開いてください。</p><p class="url">https://studypurple.github.io/studypurple-chu3/chu1/</p></div></section>
+<ol>
+<li><b>QRコードからアプリを開く</b>LINEの中で開いたときは、右上のメニューから「Safariで開く」または「ブラウザで開く」を選びます。</li>
+<li><b>ホーム画面に追加する</b>アイコンからすぐ開けるようになります。
+<div class="os"><div><em>iPhone（Safari）</em>：画面下の共有ボタン（□に↑）→「ホーム画面に追加」</div><div><em>iPhone（Chrome）</em>：アドレスバー右の共有ボタン（□に↑）→「ホーム画面に追加」</div><div><em>Android（Chrome）</em>：右上の︙ →「ホーム画面に追加」または「アプリをインストール」</div></div></li>
+<li><b>先生に記録を送る登録をする（最初の1回だけ）</b>ホームの「先生に記録を送る登録をしよう」を押して、出席番号・ニックネーム・クラスコードを入れ、「登録して送る」を押します。
+<div class="os"><div><em>出席番号</em>：「学年＋番号」で打ちます。1年1番 → <b>101</b>、1年12番 → <b>112</b></div></div></li>
+<li><b>音が出るか確かめる</b>「設定」の「読み上げを試す」を押します。聞こえないときは、音量とマナーモードを確認してください。</li>
+</ol>
+<section class="code" aria-label="クラスコード"><p><b>中1のクラスコード</b></p><p class="big">C1</p><p style="font-size:13px;color:var(--muted)">半角英数字で入れます（最初から入っています）。</p></section>
+<ul class="note">
+<li><b>記録はそのスマホに保存されます。</b>機種変更やブラウザのデータ消去をすると、最初からになります。</li>
+<li>先生に届くのは、出席番号・ニックネーム・学習時間・覚えた語数・連続日数・宿題の進み具合・まちがえやすい単語です。</li>
+<li>先生から宿題リンクが届いたら、開くだけで宿題が入ります。</li>
+</ul>
+<p style="text-align:center"><a href="./" style="color:var(--accent);font-weight:700">アプリを開く</a>　・　<a href="guide.html" style="color:var(--accent);font-weight:700">使い方ガイド</a></p>
+</main>
+</body></html>
