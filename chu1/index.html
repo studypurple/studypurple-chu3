@@ -165,6 +165,15 @@ small{font-size:12px}
 .field label{font-weight:700;font-size:14px}
 .field input,.field select{font:inherit;font-size:16px;padding:10px 12px;border-radius:10px;border:1px solid var(--line);background:var(--surface);color:var(--ink);width:100%;min-width:0}
 .units{display:flex;flex-wrap:wrap;gap:6px}
+.upick summary{display:flex;align-items:center;justify-content:space-between;gap:10px;cursor:pointer;list-style:none}
+.upick summary::-webkit-details-marker{display:none}
+.upick .uh{display:grid;gap:2px;min-width:0}.upick .uh b{font-size:13px;color:var(--muted)}
+.upick .cur{font-weight:900;font-size:16px;color:var(--accent)}
+.upick .chg{flex:none;border:1.5px solid var(--accent);color:var(--accent);border-radius:999px;padding:4px 14px;font-weight:700;font-size:13px}
+.upick[open] .chg{background:var(--accent);color:#fff}
+.upick[open] summary{margin-bottom:10px}
+.upick .ufoot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:8px;margin-top:10px}
+.upick .ufoot .ghost{margin:0;width:auto;padding:6px 12px}
 .units label{display:flex;align-items:center;gap:6px;border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:6px 12px;font-size:13px;font-weight:700;cursor:pointer}
 .units label:has(input:checked){background:var(--accent-soft);border-color:var(--accent);color:var(--accent)}
 .units input,.field .units input{accent-color:var(--accent);margin:0;width:auto;padding:0}
@@ -469,14 +478,14 @@ function burst(el){ if (reduced || !el) return;
 /* ---- plan: exam countdown and today's quota ---- */
 /* the words that count for the next test: teacher's homework, else the Units the student chose, else every word */
 const inRng = w => !S.rng || !S.rng.length || S.rng.includes(w.u);
-const scopeW = () => S.hw ? hwWords() : W.filter(inRng);
+const scopeW = () => S.rng && S.rng.length ? W.filter(inRng) : S.hw ? hwWords() : W;
 function plan(){
   const exam = parseDate(S.exam), left = exam == null ? null : Math.max(0, exam - TODAY());
   const notStarted = scopeW().filter(w => box(w.no) < 0).length;
   /* with a test date: finish new words 2 days before the test, leaving the last days for review. Without one: 10 a day */
   const daysForNew = left == null ? null : Math.max(1, left - 2);
   const newPer = !notStarted ? 0 : daysForNew == null ? Math.min(10, notStarted) : Math.min(40, Math.max(5, Math.ceil(notStarted / daysForNew)));
-  const due = W.filter(w => isDue(w.no)).length;
+  const due = W.filter(w => isDue(w.no) && inRng(w)).length;
   return {left, notStarted, newPer, due, finishBy: notStarted ? Math.ceil(notStarted / Math.max(newPer,1)) : 0};
 }
 const counts = () => { const c = [0,0,0,0]; W.forEach(w => c[lvl(w.no)]++); return c; };
@@ -548,7 +557,7 @@ function makePQ(p){
 const normType = s => s.replace(/[’‘`]/g,"'").toLowerCase().replace(/[.?!,]+$/,'').replace(/\s+/g,' ').trim();
 
 /* ---- screens ---- */
-let wsort = 'unit', tab = 'home', L = null, SHEET = null, wq = '', wf = 'all', wpos = 'all', wlimit = 300, CONF = null;
+let upOpen = false, wsort = 'unit', tab = 'home', L = null, SHEET = null, wq = '', wf = 'all', wpos = 'all', wlimit = 300, CONF = null;
 const NAV = [['home','ホーム',SVG.home],['map','石垣マップ',SVG.map],['words','単語帳',SVG.book],['set','設定',SVG.gear]];
 const nav = () => `<nav class="nav" aria-label="メニュー"><div>${NAV.map(([k,l,i])=>`<button data-act="tab" data-v="${k}" ${tab===k?'aria-current="page"':''}>${i}${l}</button>`).join('')}</div></nav>`;
 const header = () => `<div class="top"><div class="brand"><img src="${PAPURU}" alt=""><span><small>NEW HORIZON ・ 中1</small>スタパー中１英単語</span></div>
@@ -577,6 +586,10 @@ function home(){
       <div class="qrow"><b>復習</b><div class="bar v"><b style="width:${totalRev?Math.round(100*S.dRev/totalRev):100}%"></b></div><span class="num">${S.dRev} / ${totalRev}</span></div>
       <p class="hint">${esc(papuLine(pl))}</p>
     </section>
+    <details class="card upick" ${upOpen?'open':''}><summary><span class="uh"><b>出題するUnit</b><span class="cur">${esc(S.rng && S.rng.length ? unitsDesc(S.rng) : 'すべてのUnit')}</span></span><span class="chg">選ぶ</span></summary>
+      <div class="units">${unitBoxes('rng', S.rng)}</div>
+      <div class="ufoot"><span class="hint">選んだUnitから「覚える」「テスト」を出します。まだ覚えていない単語 ${W.filter(w => inRng(w) && box(w.no) < 0).length}語</span>${S.rng && S.rng.length ? '<button class="ghost" data-act="rngall">すべてに戻す</button>' : ''}</div>
+    </details>
     <div class="steps"><button class="go2" data-act="learn"><small>STEP 1</small>単語を覚える<span class="cnt">${pl.notStarted ? learnCount() : 0}語</span></button>
     <button class="go" data-act="study" data-v="normal"><small>STEP 2</small>テストする<span class="cnt">10問</span></button></div>
     <button class="ghost" data-act="study" data-v="quick">時間がない日は：5分だけテスト</button>
@@ -679,7 +692,7 @@ function setTab(){
   const hw = S.hw || {};
   $app.innerHTML = `${header()}<h1 style="font-size:22px">設定</h1>
     <div class="field"><label for="exam">次の定期テストの日</label><input id="exam" type="date" value="${esc(S.exam)}"><p class="hint">テストが終わったら、次のテストの日に変えてください。空らんにするとカウントダウンを消せます。</p></div>
-    <div class="field"><div class="uhead"><label>テスト範囲（Unit）</label><small>何も選ばないと全部</small></div><div class="units">${unitBoxes('rng', S.rng)}</div></div>
+    <div class="field"><div class="uhead"><label>テスト範囲・出題するUnit</label><small>何も選ばないと全部</small></div><div class="units">${unitBoxes('rng', S.rng)}</div></div>
     <div class="field"><label for="voicesel">読み上げの声</label><select id="voicesel">${VOICES.length?VOICES.map(v=>`<option value="${esc(v.name)}" ${voice&&v.name===voice.name?'selected':''}>${esc(v.name)} (${esc(v.lang)})</option>`).join(''):'<option>この端末の標準の声</option>'}</select></div>
     <div class="row2"><button class="go2" data-act="saytest">読み上げを試す</button><span class="hint" id="saystate" style="align-self:center">${esc(SAYSTATE || 'ボタンを押すと英語が読まれます')}</span></div>
     <p class="hint">聞こえないときは、音量と、iPhoneの消音モード（横のスイッチ）を確認してください。LINEなどのアプリの中で開いている場合は、SafariやChromeで開き直すと鳴ることがあります。</p>
@@ -715,13 +728,13 @@ function setTab(){
 function freshList(){
   const seen = Object.keys(S.seen||{}).map(Number).filter(no => box(no) < 0 && BYNO[no]).sort((a,b)=>S.seen[a]-S.seen[b]).map(no => BYNO[no]);
   const hwFirst = hwWords().filter(w => box(w.no) < 0 && !seen.includes(w));
-  return [...seen, ...hwFirst, ...ORDER.filter(w => box(w.no) < 0 && !seen.includes(w) && !hwFirst.includes(w))];
+  return [...seen, ...hwFirst, ...ORDER.filter(w => box(w.no) < 0 && !seen.includes(w) && !hwFirst.includes(w))].filter(inRng);
 }
 const learnCount = () => 10;
 function buildStudy(mode){
   rollDay();
   const pl = plan();
-  const due = shuffle(W.filter(w => isDue(w.no))).sort((a,b) => rec(b.no)[2] - rec(a.no)[2] || rec(a.no)[1] - rec(b.no)[1]);
+  const due = shuffle(W.filter(w => isDue(w.no) && inRng(w))).sort((a,b) => rec(b.no)[2] - rec(a.no)[2] || rec(a.no)[1] - rec(b.no)[1]);
   const wantNew = Math.max(0, pl.newPer - S.dNew);
   const fresh = freshList();
   /* about 1 new word per 2 reviews; when nothing is due, all new */
@@ -762,7 +775,7 @@ function startLesson(kind, mode){
     qs = shuffle(pool).slice(0,15).map(w => makeQ(w, pick(['ej','je', w.blank?'cloze':'ej'])));
     extra = {hp:qs.length, maxhp:qs.length, hearts:5};
   }
-  if (!qs.length){ toastHome('今日の分は終わっています。タイムアタックや熟語に挑戦してみよう！'); return; }
+  if (!qs.length){ toastHome(S.rng && S.rng.length && (kind==='learn' || kind==='study') ? (kind==='learn' ? '選んだUnitの単語は、もう全部覚えはじめています。STEP 2のテストか、ほかのUnitを選んでみよう！' : '選んだUnitの今日の分は終わりました。ほかのUnitも選んでみよう！') : '今日の分は終わっています。タイムアタックや熟語に挑戦してみよう！'); return; }
   new Set(qs.map(q => ((q.w||q.p||{}).t||'')[0])).forEach(loadAud);
   L = {kind, mode, qs, i:0, first:0, total:0, xp:0, combo:0, miss:[], sel:null, checked:false, res:null, msg:'', start:Date.now(), rankBefore:rankOf(S.xp), ...extra};
   if (mode==='quick') L.end = Date.now() + 5*60000;
@@ -963,6 +976,7 @@ $app.addEventListener('click', e => {
   else if (a==='stone'){ SHEET = +v; render(false); }
   else if (a==='closesheet'){ SHEET = null; render(false); }
   else if (a==='wf'){ wf = v; wlimit = 300; render(); }
+  else if (a==='rngall'){ S.rng = []; save(); upOpen = true; render(false); }
   else if (a==='wsort'){ wsort = v; S.wsort = v; save(); wlimit = 300; render(); }
   else if (a==='wpos'){ wpos = v; wlimit = 300; render(); }
   else if (a==='wmore'){ wlimit += 300; fillWords(); }
@@ -1001,7 +1015,7 @@ $app.addEventListener('input', e => {
 $app.addEventListener('change', e => {
   if (e.target.id==='voicesel'){ S.voice = e.target.value; save(); pickVoice(); say('Good morning'); }
   if (e.target.id==='exam' && (e.target.value === '' || parseDate(e.target.value) != null)){ S.exam = e.target.value; save(); }
-  if (e.target.name==='rng'){ S.rng = checkedUnits('rng'); save(); }
+  if (e.target.name==='rng'){ S.rng = checkedUnits('rng'); save(); if (tab==='home'){ upOpen = true; render(false); } }
 });
 $app.addEventListener('keydown', e => {
   if (e.key!=='Enter' || !L || e.isComposing) return;
