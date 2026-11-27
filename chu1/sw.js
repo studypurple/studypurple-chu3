@@ -1,4 +1,4 @@
-const V = 'stapar-chu1-8675d867', AV = 'stapar-chu1-aud-53899689';
+const V = 'stapar-chu1-b8d99135', AV = 'stapar-chu1-aud-53899689';
 const SHELL = ['./', 'index.html', 'nh1.json', 'manifest.webmanifest', 'icons/icon-192.png'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(V).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k.startsWith('stapar-chu1-') && k !== V && k !== AV).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
