@@ -683,7 +683,7 @@ function home(){
     <h2 class="sec">ゲーム・特訓</h2>
     <div class="tiles">
       <button class="tile" data-act="ta"><b>1分タイムアタック</b><span class="big">${S.ta}</span><span>自己ベスト（問）</span></button>
-      <button class="tile boss${boss?' done':''}" data-act="boss"><b>今週のボス戦</b><span class="big">${boss?'撃破！':'挑戦'}</span><span>今週学習した単語の総復習</span></button>
+      <button class="tile boss${boss?' done':''}" data-act="boss"><b>今週のボス戦</b><span class="big">${boss?'撃破！':S.bossDay===TODAY()?'また明日':'挑戦'}</span><span>${S.bossDay===TODAY()?'挑戦は1日1回':'今週学習した単語の総復習'}</span></button>
       <button class="tile" data-act="phr"><b>熟語</b><span class="big num">${P.filter(p=>S.pr[p.id]&&S.pr[p.id][0]>=3).length}<small class="muted"> / ${P.length}</small></span><span>Call me … など</span></button>
       <button class="tile" data-act="forms"><b>活用ドリル</b><span class="big num">${W.filter(w=>w.forms).length}<small class="muted">語</small></span><span>go - went など</span></button>
     </div>
@@ -851,6 +851,8 @@ function startLesson(kind, mode){
   }
   else if (kind==='ta'){ const deck = taDeck(); extra = {end: Date.now()+60000, score:0, deck}; qs = [makeQ(deck.pop(), 'ej')]; }
   else if (kind==='boss'){
+    if (S.bossDay === TODAY()){ toastHome('ボス戦は1日1回です。また明日挑戦しよう！'); return; }
+    S.bossDay = TODAY(); save();
     const wk = weekId(), from = wk*7 - 3;
     let pool = W.filter(w => rec(w.no) && rec(w.no)[3] >= from);
     if (pool.length < 12) pool = W.filter(w => box(w.no) >= 1);
