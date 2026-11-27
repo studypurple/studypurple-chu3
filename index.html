@@ -256,6 +256,22 @@ small{font-size:12px}
 .miss{text-align:left}
 .miss div{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid var(--line);padding:6px 0}
 .miss .en{font-weight:600}
+.castle{display:block;width:100%;height:auto;max-height:240px;margin:0 auto}
+.castle.s{max-height:150px}
+.castle .cground{fill:color-mix(in srgb,#7cb36b 55%,var(--surface))}
+.castle .cg{fill:none;stroke:var(--muted);stroke-width:1.2;stroke-dasharray:3 3;opacity:.45}
+.castle .cst{fill:#a8a29e}
+.castle .csl{stroke:#78716c;stroke-width:1.2;fill:none}
+.castle .cw{fill:#fbfaf6;stroke:#9ca3af;stroke-width:1}
+.castle .cn{fill:#475569}
+.castle .cr{fill:#475569;stroke:#334155;stroke-width:.8}
+.castle .cgold{fill:#f5b301;stroke:#a16207;stroke-width:.8}
+.castle .cs{fill:#f9a8d4}
+.castle .ct{fill:#92400e}
+.cinfo{text-align:center;font-size:14px;color:var(--muted)}
+.cinfo b{color:var(--ink)}
+.cup{display:grid;gap:4px;background:var(--surface);border:2px solid var(--accent-soft);border-radius:16px;padding:10px}
+.cup b{color:var(--accent)}
 .grow{background:var(--accent-soft);color:var(--accent);font-weight:700;border-radius:12px;padding:10px}
 
 #fx{position:fixed;inset:0;pointer-events:none;z-index:50}
@@ -479,6 +495,42 @@ function plan(){
   return {left, notStarted, newPer, due, finishBy: notStarted ? Math.ceil(notStarted / Math.max(newPer,1)) : 0};
 }
 const counts = () => { const c = [0,0,0,0]; W.forEach(w => c[lvl(w.no)]++); return c; };
+/* ---- お城づくり: the castle grows with the words learned (学習中 0.2, 定着中 0.6, 習得 1 point each) ---- */
+const CASTLE = [[0,'更地'],[.02,'石垣 1段目'],[.08,'石垣 2段目'],[.15,'石垣 完成'],[.23,'西の小天守'],[.31,'東の小天守'],
+  [.39,'大天守 1層目'],[.47,'大天守 2層目'],[.55,'大天守 3層目'],[.63,'大天守 4層目'],[.71,'大天守 5層目'],[.80,'しゃちほこ'],[.90,'桜が満開（完成）']];
+const castlePts = () => { const c = counts(); return c[1]*.2 + c[2]*.6 + c[3]; };
+const castleStage = () => { const p = castlePts() / Math.max(1, W.length); let s = 0; CASTLE.forEach((x,i)=>{ if (p >= x[0]) s = i; }); return s; };
+function castleSVG(st, cls){
+  const on = n => st >= n, G = 'class="cg"';
+  const roof = (cx, y, w) => `<path d="M${cx-w/2-7} ${y} L${cx+w/2+7} ${y} L${cx+w/2-3} ${y-7} L${cx-w/2+3} ${y-7} Z"/>`;
+  const tier = (cx, y, w, h, gable) => ({ wall:`<rect x="${cx-w/2}" y="${y-h}" width="${w}" height="${h}"/>`,
+    win:Array.from({length:Math.max(1,Math.floor(w/16))},(_,i,a,k=Math.max(1,Math.floor(w/16)))=>`<rect x="${cx-w/2+(i+.5)*w/k-2.5}" y="${y-h+5}" width="5" height="5"/>`).join(''),
+    roof:roof(cx, y-h, w) + (gable?`<path d="M${cx-9} ${y-h-7} L${cx} ${y-h-15} L${cx+9} ${y-h-7} Z"/>`:'') });
+  const T = [[96,17,1],[82,16,0],[68,16,1],[56,15,0],[44,15,1]]; let y = 125; const tiers = T.map(([w,h,g]) => { const t = tier(150, y, w, h, g); y -= h + 7; return t; });
+  const topY = y + 7;
+  const small = cx => tier(cx, 125, 26, 15, 0);
+  const draw = (t, solid) => solid ? `<g class="cw">${t.wall}</g><g class="cn">${t.win}</g><g class="cr">${t.roof}</g>` : `<g ${G}>${t.wall}${t.roof}</g>`;
+  const wallH = [0, 15, 30, 45][Math.min(3, st)];
+  const tree = (x) => `<g ${on(12)?'class="cs"':G}><circle cx="${x}" cy="160" r="11"/><circle cx="${x-9}" cy="166" r="8"/><circle cx="${x+9}" cy="166" r="8"/></g>${on(12)?`<rect class="ct" x="${x-1.5}" y="166" width="3" height="8"/>`:''}`;
+  return `<svg class="castle ${cls||''}" viewBox="0 0 300 186" role="img" aria-label="お城づくり：${esc(CASTLE[st][1])}">
+    <rect class="cground" x="0" y="170" width="300" height="16" rx="4"/>
+    ${tree(22)}${tree(278)}
+    <path ${G} d="M40 170 Q60 150 70 125 L230 125 Q240 150 260 170 Z"/>
+    ${wallH ? `<clipPath id="cwclip${cls||''}${st}"><rect x="0" y="${170-wallH}" width="300" height="${wallH}"/></clipPath>
+    <g clip-path="url(#cwclip${cls||''}${st})"><path class="cst" d="M40 170 Q60 150 70 125 L230 125 Q240 150 260 170 Z"/>
+    <clipPath id="cwshape${cls||''}${st}"><path d="M40 170 Q60 150 70 125 L230 125 Q240 150 260 170 Z"/></clipPath><g class="csl" clip-path="url(#cwshape${cls||''}${st})">${[155,140].map(yy=>`<path d="M30 ${yy} L270 ${yy}"/>`).join('')}${[60,90,120,150,180,210,240].map((x,i)=>`<path d="M${x} ${i%2?140:155} L${x} ${i%2?155:170}"/>`).join('')}</g></g>` : ''}
+    ${draw(small(82), on(4))}${draw(small(218), on(5))}
+    ${tiers.map((t,i) => draw(t, on(6+i))).join('')}
+    ${on(11) ? `<g class="cgold"><circle cx="${150-16}" cy="${topY-8}" r="3"/><circle cx="${150+16}" cy="${topY-8}" r="3"/></g>` : `<g ${G}><circle cx="${150-16}" cy="${topY-8}" r="3"/><circle cx="${150+16}" cy="${topY-8}" r="3"/></g>`}
+  </svg>`;
+}
+function castleInfo(){
+  const st = castleStage(), n = Math.max(1, W.length);
+  if (st >= CASTLE.length - 1) return `<b>${esc(CASTLE[st][1])}</b>　お城が完成！`;
+  const need = Math.max(1, Math.ceil((CASTLE[st+1][0]*n - castlePts()) / .6));
+  return `いま <b>${esc(CASTLE[st][1])}</b><br>次の「${esc(CASTLE[st+1][1])}」まで あと約<b class="num">${need}</b>語`;
+}
+
 /* homework: number range (optional), part of speech (optional), and order (by number or shuffled with a fixed seed) */
 const HWPOS = [['all','すべての品詞'],['動','動詞'],['名','名詞'],['形','形容詞'],['副','副詞'],['etc','その他']];
 const hwHas = w => { const h = S.hw; return !!h && w.no >= (h.from||1) && w.no <= (h.to||2500) && hasPos(w, h.pos||'all'); };
@@ -592,7 +644,7 @@ function home(){
     ${REPORT_ON && !S.rep ? `<button class="banner" data-act="gorep"><img src="${PAPURU}" alt=""><span><b>先生に記録を送る登録をしよう</b><span>出席番号・ニックネーム・クラスコードを入れるだけ（1分）</span></span></button>` : ''}
     ${hw ? `<section class="card" aria-label="宿題"><div class="qrow" style="grid-template-columns:auto 1fr auto"><b>宿題</b><div class="bar"><b style="width:${Math.round(100*hwDone/Math.max(1,hwW.length))}%"></b></div><span class="num">${hwDone} / ${hwW.length}</span></div>
       <p class="hint">${esc(hwDesc(hw))}${hw.due?`（${fmtDate(hw.due)}まで）`:''}。新しい単語はこの中から先に出ます。</p></section>` : ''}
-    <button class="card" data-act="tab" data-v="map" style="text-align:left;display:grid;gap:8px"><div style="display:flex;justify-content:space-between"><b>2,500個の石垣</b><span class="muted num">${Math.round(100*counts()[3]/W.length)}% 完成</span></div>${strip()}${legend()}</button>
+    <button class="card" data-act="tab" data-v="map" style="text-align:left;display:grid;gap:8px"><div style="display:flex;justify-content:space-between"><b>2,500個の石垣</b><span class="muted num">${Math.round(100*counts()[3]/W.length)}% 完成</span></div>${castleSVG(castleStage(),'s')}<p class="cinfo" style="margin:0">${castleInfo()}</p>${strip()}${legend()}</button>
     <h2 class="sec">ゲーム・特訓</h2>
     <div class="tiles">
       <button class="tile" data-act="ta"><b>1分タイムアタック</b><span class="big">${S.ta}</span><span>自己ベスト（問）</span></button>
@@ -608,6 +660,7 @@ function mapTab(){
   const hw = S.hw;
   $app.innerHTML = `${header()}<h1 style="font-size:22px">2,500個の石垣</h1>
     <p class="hint">1つの石が1つの単語です。覚えるほど色が濃くなり、石垣が積み上がります。石をタップすると単語が見られます。${hw?'オレンジの枠は宿題の範囲です。':''}</p>
+    <section class="card" aria-label="お城づくり" style="display:grid;gap:6px">${castleSVG(castleStage(),'b')}<p class="cinfo" style="margin:0">${castleInfo()}</p></section>
     ${strip()}${legend()}
     <div style="display:grid;gap:12px">${Object.keys(letters).sort().map(k => { const ws = letters[k], m = ws.filter(w=>lvl(w.no)===3).length;
       return `<div class="letter"><h3>${k}<small class="num">${m}/${ws.length}</small></h3><div class="stones">${ws.map(w=>`<button class="l${lvl(w.no)}${hw&&hwHas(w)?' hw':''}" data-act="stone" data-v="${w.no}" aria-label="${esc(w.en)}"></button>`).join('')}</div></div>`; }).join('')}</div>
@@ -766,7 +819,7 @@ function startLesson(kind, mode){
   }
   if (!qs.length){ toastHome('今日の分は終わっています。タイムアタックや熟語に挑戦してみよう！'); return; }
   new Set(qs.map(q => ((q.w||q.p||{}).t||'')[0])).forEach(loadAud);
-  L = {kind, mode, qs, i:0, first:0, total:0, xp:0, combo:0, miss:[], sel:null, checked:false, res:null, msg:'', start:Date.now(), rankBefore:rankOf(S.xp), ...extra};
+  L = {kind, mode, qs, i:0, first:0, total:0, xp:0, combo:0, miss:[], sel:null, checked:false, res:null, msg:'', start:Date.now(), rankBefore:rankOf(S.xp), castleBefore:castleStage(), ...extra};
   if (mode==='quick') L.end = Date.now() + 5*60000;
   if (L.end) tick();
   lesson();
@@ -930,11 +983,12 @@ function finish(){
   setTimeout(() => sendReport(true), 300);
   if (S.last !== t){ S.streak = (S.last >= 0 && t - S.last === 1) ? S.streak+1 : 1; S.last = t; }
   save();
-  const rankUp = rankOf(S.xp) > L.rankBefore;
+  const rankUp = rankOf(S.xp) > L.rankBefore, cst = castleStage(), castleUp = cst > L.castleBefore;
   sfx('clear');
   const acc = L.total ? Math.round(100*L.first/L.total) : 0;
   const lost = (k==='boss' && L.hp!==0) || (k!=='ta' && k!=='diag' && L.total >= 5 && acc < 50);
   $app.innerHTML = `<div class="res"><img class="p ${lost?'droop':'joy'}" src="${lost?PAPURU_NG:PAPURU_OK}" alt="ぱぷる"><h1>${title}</h1>
+    ${castleUp?`<div class="cup">${castleSVG(cst,'s')}<span>お城づくりが進んだ！ <b>「${esc(CASTLE[cst][1])}」</b>ができた！</span></div>`:''}
     ${rankUp?`<p class="grow">ランクアップ！「${esc(RANKS[rankOf(S.xp)][1])}」になった！</p>`:''}
     ${extra || `<div class="rgrid"><div class="rbox"><small>獲得XP</small><b>+${L.xp}</b></div><div class="rbox"><small>正答率</small><b>${acc}%</b></div><div class="rbox"><small>連続日数</small><b>${S.streak}</b></div></div>`}
     ${L.miss.length && k!=='diag' ? `<div class="miss"><h2 class="sec">まちがえた単語（明日の復習で出ます）</h2>${L.miss.map(w=>`<div><span class="en">${esc(w.en)}</span><span>${esc(w.q)}</span></div>`).join('')}</div>` : ''}
